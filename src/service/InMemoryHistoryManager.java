@@ -9,11 +9,13 @@ public class InMemoryHistoryManager implements HistoryManager{
     ArrayList<Task> historyList = new ArrayList<>();
     @Override
     public void add(Task task) {
-        if (historyList.size() == 9) {
-            historyList.remove(0);
-            historyList.add(task);
-        } else {
-            historyList.add(task);
+        if (task != null) {
+            if (historyList.size() == 9) {
+                historyList.remove(0);
+                historyList.add(task);
+            } else {
+                historyList.add(task);
+            }
         }
     }
     @Override
