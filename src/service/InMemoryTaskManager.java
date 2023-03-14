@@ -18,11 +18,7 @@ public class InMemoryTaskManager implements TaskManager {
     static HistoryManager historyManager = Managers.getDefaultHistory();
 
     public List<Task> getHistory() {            //The method returns a new collection based on the browsing history
-        List<Task> list = new ArrayList<>();
-        for (Task task : historyManager.getHistory()) {
-            list.add(task);
-        }
-        return list;
+        return new ArrayList<>(historyManager.getHistory());
     }
 
     private void generateId() {                 //The method in turn generates a number to assign the task as ID
