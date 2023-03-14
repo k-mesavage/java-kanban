@@ -32,17 +32,20 @@ public class Main {
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTask());
-        //Shadow implementation of add to browsing history method
-        manager.getEpicById(epic1);
-        manager.getTaskById(task1);
         //Delete by id
         manager.deleteTaskById(1);
-        manager.deleteEpicById(2);
+        manager.deleteEpicById(6);
         manager.deleteSubTaskById(7);
         //result check
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTask());
+        //Shadow implementation of add to browsing history method
+        manager.getTaskById(task1);
+        manager.getTaskById(task2);
+        manager.getEpicById(epic1);
+        manager.getEpicById(epic2);
+        manager.getSubTaskById(subtask1);
         //Delete all
         manager.deleteEpics();
         manager.deleteTasks();
