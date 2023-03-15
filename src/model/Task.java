@@ -6,11 +6,13 @@ public class Task {
     private String name;
     private String description;
     private Status status = Status.NEW;
-    private Integer id;
+    private int id;
+    private static int i = 0;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
+        id += ++i;
     }
 
     public void setName(String name) {

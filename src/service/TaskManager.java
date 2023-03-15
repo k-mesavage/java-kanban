@@ -6,15 +6,16 @@ import model.SubTask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface TaskManager {
 
-    public Task addTask(String name, String description);
+    public Task addTask(Task task);
 
-    public Epic addEpic(String name, String description);
+    public Epic addEpic(Epic epic);
 
-    public SubTask addSubTask(String name, String description, Integer epicId);
+    public SubTask addSubTask(SubTask subTask);
 
     public ArrayList<Task> getTasks();
 
@@ -28,11 +29,12 @@ public interface TaskManager {
 
     public SubTask getSubTaskById(SubTask subtask);
 
-    public void updateTask(Integer id, String newName, String newDescription);
+    public void updateTask(Task task);
 
-    public void updateEpic(Integer id, String newName, String newDescription);
+    public void updateEpic(Epic epic);
 
-    public void updateSubTask(Integer id, String newName, String newDescription);
+    public void updateSubTask(SubTask subTask);
+
 
     public void deleteTaskById(int id);
 
@@ -50,6 +52,6 @@ public interface TaskManager {
 
     public void changeSubTaskStatus(SubTask subtask, Status status);
 
-    public void printSubTasksForEpic(Epic epic);
+    public List<SubTask> printSubTasksForEpic(int epicId);
     List<Task> getHistory();
 }
