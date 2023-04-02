@@ -1,5 +1,4 @@
 import model.Epic;
-import model.Status;
 import model.SubTask;
 import model.Task;
 import service.*;
@@ -22,45 +21,24 @@ public class Main {
         Task task1 =  manager.addTask(new Task(taskName,description));
         Task task2 = manager.addTask(new Task(taskName,description));
         Epic epic1 = manager.addEpic(new Epic(epicName,description));
+        Epic epic2 = manager.addEpic(new Epic(epicName2, description));
         SubTask subTask1 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
         SubTask subTask2 = manager.addSubTask(new SubTask(subTaskName, description, epic1.getId()));
-        Epic epic2 = manager.addEpic(new Epic(epicName, description));
-        SubTask subTask3 = manager.addSubTask(new SubTask(subTaskName, description, epic2.getId()));
-        //result check
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubTask());
-        //Change of statuses
-        manager.changeSubTaskStatus(subTask1 , Status.DONE);
-        manager.changeSubTaskStatus(subTask2, Status.DONE);
-        manager.changeTaskStatus(task2, Status.IN_PROGRESS);
-        //result check
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubTask());
-        //Delete by id
-        manager.deleteTaskById(1);
-        manager.deleteEpicById(6);
-        manager.deleteSubTaskById(7);
-        //result check
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubTask());
-        //Shadow implementation of add to browsing history method
-        manager.getTaskById(task1);
-        manager.getTaskById(task2);
+        SubTask subTask3 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
+        //Calling tasks to check history;
         manager.getEpicById(epic1);
-        manager.getEpicById(epic2);
+        System.out.println(manager.getHistory());
+        System.out.println();
         manager.getSubTaskById(subTask1);
-        //Delete all
-        manager.deleteEpics();
-        manager.deleteTasks();
-        manager.deleteSubTasks();
-        //result check
-        System.out.println(manager.getTasks());
-        System.out.println(manager.getEpics());
-        System.out.println(manager.getSubTask());
-        //History browsing
+        System.out.println(manager.getHistory());
+        System.out.println();
+        manager.getEpicById(epic2);
+        System.out.println(manager.getHistory());
+        System.out.println();
+        manager.getEpicById(epic1);
+        System.out.println(manager.getHistory());
+        System.out.println();
+        manager.deleteEpicById(epic1.getId());
         System.out.println(manager.getHistory());
     }
 }

@@ -1,57 +1,53 @@
 package service;
-
 import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
 public interface TaskManager {
 
-    public Task addTask(Task task);
+    Task addTask(Task task);
 
-    public Epic addEpic(Epic epic);
+    Epic addEpic(Epic epic);
 
-    public SubTask addSubTask(SubTask subTask);
+    SubTask addSubTask(SubTask subTask);
 
-    public ArrayList<Task> getTasks();
+    ArrayList<Task> getTasks();
 
-    public ArrayList<Epic> getEpics();
+    ArrayList<Epic> getEpics();
 
-    public ArrayList<SubTask> getSubTask();
+    ArrayList<SubTask> getSubTask();
 
-    public Task getTaskById(Task task);
+    Task getTaskById(Task task);
 
-    public Epic getEpicById(Epic epic);
+    void getEpicById(Epic epic);
 
-    public SubTask getSubTaskById(SubTask subtask);
+    void getSubTaskById(SubTask subtask);
 
-    public void updateTask(Task task);
+    void updateTask(Task task);
 
-    public void updateEpic(Epic epic);
+    void updateEpic(Epic epic);
 
-    public void updateSubTask(SubTask subTask);
+    void updateSubTask(SubTask subTask);
 
 
-    public void deleteTaskById(int id);
+    void deleteTaskById(int id);
 
-    public void deleteEpicById(int id);
+    void deleteEpicById(int id);
 
-    public void deleteSubTaskById(int id);
+    void deleteSubTaskById(int id);
 
-    public void deleteTasks();
+    void deleteTasks();
 
-    public void deleteEpics();
+    void deleteEpics();
 
-    public void deleteSubTasks();
+    void deleteSubTasks();
 
-    public void changeTaskStatus(Task task, Status status);
+    void changeTaskStatus(Task task, Status status);
 
-    public void changeSubTaskStatus(SubTask subtask, Status status);
+    void changeSubTaskStatus(SubTask subtask, Status status);
 
-    public List<SubTask> printSubTasksForEpic(int epicId);
+    List<SubTask> printSubTasksForEpic(int epicId);
     List<Task> getHistory();
 }

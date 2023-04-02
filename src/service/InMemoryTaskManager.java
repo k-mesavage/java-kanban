@@ -9,11 +9,11 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private Integer id = 0;
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, Epic> epics = new HashMap<>();
-    private HashMap<Integer, SubTask> subTasks = new HashMap();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
 
-    static HistoryManager historyManager = Managers.getDefaultHistory();
+    static final HistoryManager historyManager = Managers.getDefaultHistory();
 
     public List<Task> getHistory() {            //The method returns a new collection based on the browsing history
         return new LinkedList<>(historyManager.getHistory());
@@ -74,15 +74,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpicById(Epic epic) {
+    public void getEpicById(Epic epic) {
         historyManager.add(epics.get(epic.getId()));
-        return epics.get(epic.getId());
+        epics.get(epic.getId());
     }
 
     @Override
-    public SubTask getSubTaskById(SubTask subtask){
+    public void getSubTaskById(SubTask subtask){
         historyManager.add(subTasks.get(subtask.getId()));
-        return subTasks.get(subtask.getId());
+        subTasks.get(subtask.getId());
     }
 
     @Override
@@ -107,6 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) {
         tasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -116,6 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.remove(subtaskId);
         }
         epics.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
