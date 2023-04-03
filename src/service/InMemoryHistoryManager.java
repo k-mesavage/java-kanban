@@ -50,10 +50,7 @@ public class InMemoryHistoryManager extends Node implements HistoryManager {
             if (head == null) {
                 tail = node;
                 head = node;
-                node.setNext(null);
-                node.setPrev(null);
             } else {
-                node.setNext(null);
                 node.setPrev(tail);
                 tail.setNext(node);
                 tail = node;
