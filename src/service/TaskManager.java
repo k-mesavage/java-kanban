@@ -3,51 +3,53 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 public interface TaskManager {
 
-    Task addTask(Task task);
+    Task addTask(Task task) throws IOException;
 
-    Epic addEpic(Epic epic);
+    Epic addEpic(Epic epic) throws IOException;
 
-    SubTask addSubTask(SubTask subTask);
+    SubTask addSubTask(SubTask subTask) throws IOException;
 
-    ArrayList<Task> getTasks();
+    ArrayList<Task> getTasks() throws IOException;
 
-    ArrayList<Epic> getEpics();
+    ArrayList<Epic> getEpics() throws IOException;
 
-    ArrayList<SubTask> getSubTask();
+    ArrayList<SubTask> getSubTask() throws IOException;
 
-    Task getTaskById(Task task);
+    Task getTaskById(int id) throws IOException;
 
-    void getEpicById(Epic epic);
+    Task getEpicById(int id) throws IOException;
 
-    void getSubTaskById(SubTask subtask);
+    Task getSubTaskById(int id) throws IOException;
 
-    void updateTask(Task task);
+    void updateTask(Task task) throws IOException;
 
-    void updateEpic(Epic epic);
+    void updateEpic(Epic epic) throws IOException;
 
-    void updateSubTask(SubTask subTask);
+    void updateSubTask(SubTask subTask) throws IOException;
 
 
-    void deleteTaskById(int id);
+    void deleteTaskById(int id) throws IOException;
 
-    void deleteEpicById(int id);
+    void deleteEpicById(int id) throws IOException;
 
-    void deleteSubTaskById(int id);
+    void deleteSubTaskById(int id) throws IOException;
 
-    void deleteTasks();
+    void deleteTasks() throws IOException;
 
-    void deleteEpics();
+    void deleteEpics() throws IOException;
 
-    void deleteSubTasks();
+    void deleteSubTasks() throws IOException;
 
-    void changeTaskStatus(Task task, Status status);
+    void changeTaskStatus(Task task, Status status) throws IOException;
 
-    void changeSubTaskStatus(SubTask subtask, Status status);
+    void changeSubTaskStatus(SubTask subtask, Status status) throws IOException;
 
-    List<SubTask> printSubTasksForEpic(int epicId);
-    List<Task> getHistory();
+    List<SubTask> printSubTasksForEpic(int epicId) throws IOException;
+    List<Task> getHistory() throws IOException;
 }

@@ -74,4 +74,6 @@ public class InMemoryHistoryManager extends Node implements HistoryManager {
     public List<Task> getHistory() {
         return list.getTasks();
     }
+
+
 }

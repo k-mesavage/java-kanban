@@ -3,12 +3,14 @@ import model.SubTask;
 import model.Task;
 import service.*;
 
+import java.io.IOException;
+
 public class Main {
 
     /*Welcome to the Test Class Interface.
     This class implements methods with parameters
         for a console check of the program's performance.*/
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //Create defaultManager (InMemoryTaskManager);
         TaskManager manager = Managers.getDefault();
         //Work strings
@@ -26,16 +28,16 @@ public class Main {
         SubTask subTask2 = manager.addSubTask(new SubTask(subTaskName, description, epic1.getId()));
         SubTask subTask3 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
         //Calling tasks to check history;
-        manager.getEpicById(epic1);                 //calling the first object
+        manager.getEpicById(epic1.getId());                 //calling the first object
         System.out.println(manager.getHistory());
         System.out.println();
-        manager.getSubTaskById(subTask1);           //calling the second object
+        manager.getSubTaskById(subTask1.getId());           //calling the second object
         System.out.println(manager.getHistory());
         System.out.println();
-        manager.getEpicById(epic1);                 //recalling the first object, shift down in history
+        manager.getEpicById(epic1.getId());                 //recalling the first object, shift down in history
         System.out.println(manager.getHistory());
         System.out.println();
-        manager.getEpicById(epic2);                 //related objects removed
+        manager.getEpicById(epic2.getId());                 //related objects removed
         manager.deleteEpicById(epic1.getId());
         System.out.println(manager.getHistory());
     }
