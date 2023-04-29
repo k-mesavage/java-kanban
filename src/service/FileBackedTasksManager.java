@@ -16,7 +16,8 @@ class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager.file = file;
     }
     public static void main(String[] args) throws IOException {
-        FileBackedTasksManager xo = new FileBackedTasksManager(new File("log.csv"));
+        FileBackedTasksManager xo = new FileBackedTasksManager          /*ADD USERNAME*/
+                (new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
 
 //Set up different tasks, epics, and subtasks.
         Task task = xo.addTask(new Task("TaskOne", "TaskDescription"));
@@ -32,7 +33,8 @@ class FileBackedTasksManager extends InMemoryTaskManager {
         xo.getSubTaskById(subTask1.getId());
 
 //Create a new FileBackedTasksManager manager from the same file.
-        FileBackedTasksManager test = new FileBackedTasksManager(new File("log.csv"));
+        FileBackedTasksManager test = new FileBackedTasksManager
+                (new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
         test.loadFromFile(file);
 
 //FileBackedTasksManager recovered correctly?
@@ -48,21 +50,17 @@ class FileBackedTasksManager extends InMemoryTaskManager {
                     break;
                 }
                 if (!line.isEmpty() && !line.equals(HEAD)) {
-                    while (true) {
-                        if (fromString(line) instanceof Epic epic) {
-                            addEpic(epic);
-                            break;
-                        } else if (fromString(line) instanceof SubTask subTask) {
-                            addSubTask(subTask);
-                            break;
-                        } else {
-                            Task task = fromString(line);
-                            addTask(task);
-                            break;
-                        }
+                    if (fromString(line) instanceof Epic epic) {
+                        addEpic(epic);
+                    } else if (fromString(line) instanceof SubTask subTask) {
+                        addSubTask(subTask);
+                    } else {
+                        Task task = fromString(line);
+                        addTask(task);
                     }
                 }
             }
+
             String historyLine = reader.readLine();
             for (int id : historyFromString(historyLine)) {
                 if (tasks.containsKey(id)) {
@@ -74,7 +72,8 @@ class FileBackedTasksManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Произошла ошибка во время чтения файла!");
+            throw new ManagerSaveException
+                    ("File read error, check dir: /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
         }
     }
     void save() throws IOException {
@@ -84,7 +83,8 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             }
             Files.createFile(file.toPath());
         } catch (IOException e) {
-            throw new ManagerSaveException("Не удалось найти файл для записи данных");
+            throw new ManagerSaveException
+                    ("Save file error, check dir /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
         }
         try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             writer.write(HEAD);
