@@ -1,6 +1,9 @@
 package model;
 
 
+import java.time.Duration;
+import java.time.LocalDate;
+
 public class Task {
 
     private String name;
@@ -8,12 +11,17 @@ public class Task {
     private Status status = Status.NEW;
     private int id;
     private static int i = 0;
+    Duration duration;
+
+    LocalDate startTime;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         id += ++i;
     }
+
+
 
     public void setName(String name) {
         this.name = name;

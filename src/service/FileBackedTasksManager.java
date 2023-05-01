@@ -17,7 +17,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
     }
     public static void main(String[] args) throws IOException {
         FileBackedTasksManager xo = new FileBackedTasksManager          /*ADD USERNAME*/
-                (new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
+                (new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
 
 //Set up different tasks, epics, and subtasks.
         Task task = xo.addTask(new Task("TaskOne", "TaskDescription"));
@@ -34,7 +34,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
 
 //Create a new FileBackedTasksManager manager from the same file.
         FileBackedTasksManager test = new FileBackedTasksManager
-                (new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
+                (new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
         test.loadFromFile(file);
 
 //FileBackedTasksManager recovered correctly?
@@ -73,7 +73,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerSaveException
-                    ("File read error, check dir: /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
+                    ("File read error, check dir: /Users/mesavage/Documents/dev/java-kanban/src/service/resources!");
         }
     }
     void save() throws IOException {
@@ -84,7 +84,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             Files.createFile(file.toPath());
         } catch (IOException e) {
             throw new ManagerSaveException
-                    ("Save file error, check dir /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
+                    ("Save file error, check dir /Users/mesavage/Documents/dev/java-kanban/src/service/resources!");
         }
         try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             writer.write(HEAD);
@@ -199,7 +199,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
     public SubTask addSubTask(SubTask subTask) throws IOException {
         subTasks.put(subTask.getId(), subTask);
         Epic epic = epics.get(subTask.getEpicId());
-        epic.addSubTask(subTask.getId());
+        epic.addSubTask(subTask);
         epics.put(subTask.getEpicId(), epic);
         save();
         return subTask;

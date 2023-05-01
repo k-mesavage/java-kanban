@@ -1,4 +1,5 @@
 import model.Epic;
+import model.Status;
 import model.SubTask;
 import model.Task;
 import service.*;
@@ -27,8 +28,13 @@ public class Main {
         SubTask subTask1 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
         SubTask subTask2 = manager.addSubTask(new SubTask(subTaskName, description, epic1.getId()));
         SubTask subTask3 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
+        manager.changeSubTaskStatus(subTask1, Status.DONE);
+        System.out.println(epic1.getStatus());
+        System.out.println(manager.printSubTasksForEpic(epic1.getId()));
+
+
         //Calling tasks to check history;
-        manager.getEpicById(epic1.getId());                 //calling the first object
+        /*manager.getEpicById(epic1.getId());                 //calling the first object
         System.out.println(manager.getHistory());
         System.out.println();
         manager.getSubTaskById(subTask1.getId());           //calling the second object
@@ -39,6 +45,6 @@ public class Main {
         System.out.println();
         manager.getEpicById(epic2.getId());                 //related objects removed
         manager.deleteEpicById(epic1.getId());
-        System.out.println(manager.getHistory());
+        System.out.println(manager.getHistory());*/
     }
 }

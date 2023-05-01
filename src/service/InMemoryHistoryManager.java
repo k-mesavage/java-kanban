@@ -1,5 +1,6 @@
 package service;
 
+import model.SubTask;
 import model.Task;
 
 import java.util.*;
@@ -66,8 +67,8 @@ public class InMemoryHistoryManager extends Node implements HistoryManager {
     }
 
     @Override
-    public void remove(int id) {
-        list.removeNode(list.getNode(id));
+    public void remove(SubTask id) {
+        list.removeNode(list.getNode(id.getId()));
     }
 
     @Override

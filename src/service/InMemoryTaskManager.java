@@ -17,7 +17,7 @@ public class InMemoryTaskManager implements TaskManager {
     static final HistoryManager historyManager = Managers.getDefaultHistory();
 
 
-    public List<Task> getHistory() throws IOException {            //The method returns a new collection based on the browsing history
+    public List<Task> getHistory() {           //The method returns a new collection based on the browsing history
         return new LinkedList<>(historyManager.getHistory());
     }
 
@@ -48,7 +48,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTask.setId(id);
         subTasks.put(subTask.getId(), subTask);
         Epic epic = epics.get(subTask.getEpicId());
-        epic.addSubTask(subTask.getId());
+        epic.addSubTask(subTask);
         epics.put(subTask.getEpicId(), epic);
         return subTask;
     }
@@ -78,15 +78,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getEpicById(int id) throws IOException {
         historyManager.add(epics.get(id));
-        Task epic = epics.get(id);
-        return epic;
+        return epics.get(id);
     }
 
     @Override
     public Task getSubTaskById(int id) throws IOException {
         historyManager.add(subTasks.get(id));
-        Task subTask = subTasks.get(id);
-        return subTask;
+        return subTasks.get(id);
     }
 
     @Override
@@ -111,18 +109,18 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) throws IOException {
         tasks.remove(id);
-        historyManager.remove(id);
+        historyManager.remove(subTasks.get(id));
     }
 
     @Override
     public void deleteEpicById(int id) throws IOException {
         Epic epic = epics.get(id);
-        for (Integer subtaskId : epic.getSubTaskId()) {
-            subTasks.remove(subtaskId);
+        for (SubTask subtaskId : epic.getSubTasksList()) {
+            subTasks.remove(subtaskId.getId());
             historyManager.remove(subtaskId);
         }
-        epics.remove(id);
-        historyManager.remove(id);
+        epics.remove(epic.getId());
+        historyManager.remove(subTasks.get(id));
     }
 
     @Override
@@ -130,7 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subtask = subTasks.get(id);
         if (subtask != null) {
             Epic epic = epics.get(subtask.getEpicId());
-            epic.getSubTaskId().remove(subtask.getId());
+            epic.getSubTasksList().remove(subtask);
             updateEpic(epic);
             subTasks.remove(id);
         } else {
@@ -153,39 +151,29 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubTasks() throws IOException {
         subTasks.clear();
         for (Epic epic : epics.values()) {
-            epic.getSubTaskId().clear();
+            epic.getSubTasksList().clear();
             updateEpic(epic);
         }
     }
 
     @Override
-    public void changeTaskStatus(Task task, Status status) throws IOException {
+    public void changeTaskStatus(Task task, Status status) {
         task.setStatus(status);
     }
 
     @Override
-    public void changeSubTaskStatus(SubTask subtask, Status status) throws IOException {
+    public void changeSubTaskStatus(SubTask subtask, Status status) {
         subtask.setStatus(status);
-        epics.get(subtask.getId());
-        for (Integer subtaskId : epics.get(subtask.getEpicId()).getSubTaskId()) {
-            if(subTasks.get(subtaskId).getStatus() == Status.NEW){
-                epics.get(subtask.getEpicId()).setStatus(Status.NEW);
-            } else if (subTasks.get(subtaskId).getStatus() == Status.DONE){
-                epics.get(subtask.getEpicId()).setStatus(Status.DONE);
-            } else {
-                epics.get(subtask.getEpicId()).setStatus(Status.IN_PROGRESS);
-            }
-        }
+        Epic epic = epics.get(subtask.getEpicId());
+        epic.setStatus();
+
     }
     @Override
-    public List<SubTask> printSubTasksForEpic(int epicId) throws IOException {
+    public List<SubTask> printSubTasksForEpic(int epicId) {
         if (epics.containsKey(epicId)) {
             List<SubTask> subtasksNew = new ArrayList<>();
             Epic epic = epics.get(epicId);
-            for (int i = 0; i < epic.getSubTaskId().size(); i++) {
-                subtasksNew.add(subTasks.get(epic.getSubTaskId().get(i)));
-            }
-            return subtasksNew;
+            return epic.getSubTasksList();
         } else {
             return Collections.emptyList();
         }
