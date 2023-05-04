@@ -1,12 +1,15 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static model.Status.*;
 
 public class Epic extends Task {
 
-    final ArrayList<SubTask> subTasksList = new ArrayList<>();
+    private ArrayList<SubTask> subTasksList = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -14,10 +17,14 @@ public class Epic extends Task {
 
     public void addSubTask(SubTask subTaskId){
         this.subTasksList.add(subTaskId);
+        timeCalculation();
     }
 
     public ArrayList<SubTask> getSubTasksList() {
         return subTasksList;
+    }
+    public void setSubTasksList(ArrayList<SubTask> list) {
+        this.subTasksList = list;
     }
 
     public void removeSubTask(SubTask subtaskIdToRemove){
@@ -45,6 +52,28 @@ public class Epic extends Task {
         } else if (subTasksList.isEmpty() || countNewStatus == subTasksList.size()) {
             setStatus(NEW);
         }
+    }
+    public void timeCalculation() {
+        Duration duration = null;
+        LocalDateTime firstDate = null;
+        LocalDateTime lastDate = null;
+        if (subTasksList != null){
+            for (SubTask subTask : subTasksList){
+                if (subTask.getDuration()!=null && subTask.getStartTime()!=null){
+                    if (firstDate == null || firstDate.isAfter(subTask.getStartTime()))
+                        firstDate = subTask.getStartTime();
+                    if(lastDate == null || lastDate.isBefore(subTask.getEndTime()))
+                        lastDate = subTask.getEndTime();
+                    if (duration == null)
+                        duration = subTask.getDuration();
+                    else
+                        duration = duration.plus(subTask.getDuration());
+                }
+            }
+        }
+        this.duration = duration;
+        startTime = firstDate;
+        endTime = lastDate;
     }
 
     @Override

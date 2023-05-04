@@ -7,6 +7,8 @@ import model.Task;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
+
 public interface TaskManager {
 
     Task addTask(Task task) throws IOException;
@@ -19,19 +21,19 @@ public interface TaskManager {
 
     ArrayList<Epic> getEpics() throws IOException;
 
-    ArrayList<SubTask> getSubTask() throws IOException;
+    ArrayList<SubTask> getSubTasks() throws IOException;
 
     Task getTaskById(int id) throws IOException;
 
-    Task getEpicById(int id) throws IOException;
+    Epic getEpicById(int id) throws IOException;
 
-    Task getSubTaskById(int id) throws IOException;
+    SubTask getSubTaskById(int id) throws IOException;
 
-    void updateTask(Task task) throws IOException;
+    void updateTask(int id, Task task) throws IOException;
 
-    void updateEpic(Epic epic) throws IOException;
+    void updateEpic(int id, Epic epic) throws IOException;
 
-    void updateSubTask(SubTask subTask) throws IOException;
+    void updateSubTask(int id, SubTask subTask) throws IOException;
 
 
     void deleteTaskById(int id) throws IOException;
@@ -46,10 +48,16 @@ public interface TaskManager {
 
     void deleteSubTasks() throws IOException;
 
-    void changeTaskStatus(Task task, Status status) throws IOException;
+    void changeTaskStatus(Task task, Status status);
 
-    void changeSubTaskStatus(SubTask subtask, Status status) throws IOException;
+    void changeSubTaskStatus(SubTask subtask, Status status);
 
-    List<SubTask> printSubTasksForEpic(int epicId) throws IOException;
-    List<Task> getHistory() throws IOException;
+    List<SubTask> printSubTasksForEpic(int epicId);
+
+    List<Task> getHistory();
+
+    TreeSet<Task> sortByDateTime();
+
+    void intersectionElimination(Task newTask);
 }
+

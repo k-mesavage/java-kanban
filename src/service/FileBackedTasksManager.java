@@ -9,12 +9,19 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-class FileBackedTasksManager extends InMemoryTaskManager {
+public class FileBackedTasksManager extends InMemoryTaskManager {
     protected static File file;
     protected static final String HEAD = ("ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC");
+
     public FileBackedTasksManager(File file) {
         FileBackedTasksManager.file = file;
     }
+
+    @Override
+    public void changeTaskStatus(Task task, Status status) {
+        task.setStatus(status);
+    }
+
     public static void main(String[] args) throws IOException {
         FileBackedTasksManager xo = new FileBackedTasksManager          /*ADD USERNAME*/
                 (new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
@@ -46,10 +53,10 @@ class FileBackedTasksManager extends InMemoryTaskManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             while (reader.ready()) {
                 String line = reader.readLine();
-                if (line.equals("")) {
+                if (line.isEmpty()) {
                     break;
                 }
-                if (!line.isEmpty() && !line.equals(HEAD)) {
+                if (!line.equals(HEAD)) {
                     if (fromString(line) instanceof Epic epic) {
                         addEpic(epic);
                     } else if (fromString(line) instanceof SubTask subTask) {
@@ -73,7 +80,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerSaveException
-                    ("File read error, check dir: /Users/mesavage/Documents/dev/java-kanban/src/service/resources!");
+                    ("File read error, check dir: /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
         }
     }
     void save() throws IOException {
@@ -84,7 +91,7 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             Files.createFile(file.toPath());
         } catch (IOException e) {
             throw new ManagerSaveException
-                    ("Save file error, check dir /Users/mesavage/Documents/dev/java-kanban/src/service/resources!");
+                    ("Save file error, check dir /Users/USERNAME/Documents/dev/java-kanban/src/service/resources!");
         }
         try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             writer.write(HEAD);
@@ -94,14 +101,13 @@ class FileBackedTasksManager extends InMemoryTaskManager {
             }
             for (Epic epic : getEpics()) {
                 writer.write(toString(epic) + System.lineSeparator());
-                for (SubTask subTask : getSubTask()) {
+                for (SubTask subTask : getSubTasks()) {
                     writer.write(toString(subTask)+ System.lineSeparator());
                 }
             }
             writer.write(System.lineSeparator());
-            if(historyManager.getHistory().size() != 0) {
-                writer.write(historyToString(historyManager));}
-            }
+            writer.write(historyToString(historyManager));}
+
         }
     private static Task fromString(String value) {
         String[] params = value.split(",");
@@ -133,16 +139,19 @@ class FileBackedTasksManager extends InMemoryTaskManager {
         List<Task> history = manager.getHistory();
         List<String> idTasks = new ArrayList<>();
         for (Task task : history) {
-            int id = task.getId();
-            idTasks.add(String.valueOf(id));
+            idTasks.add(String.valueOf(task.getId()));
         }
         return String.join(",", idTasks);
     }
     static List<Integer> historyFromString(String line) {
         List<Integer> list = new ArrayList<>();
-        String[] ids = line.split(",");
-        for (int i = ids.length - 1; i >= 0; i--) {
-            list.add(Integer.parseInt(ids[i]));
+        if (line != null) {
+
+            String[] ids = line.split(",");
+            for (int i = ids.length - 1; i >= 0; i--) {
+                list.add(Integer.parseInt(ids[i]));
+            }
+            return list;
         }
         return list;
     }
@@ -166,59 +175,34 @@ class FileBackedTasksManager extends InMemoryTaskManager {
         return String.join(",", toJoin);
     }
     @Override
-    public Task getTaskById(int id) throws IOException {
-        Task task = super.getTaskById(id);
+    public Epic getEpicById(int id) throws IOException {
+        super.getEpicById(id);
         save();
-        return task;
+        return super.getEpicById(id);
     }
     @Override
-    public Task getEpicById(int id) throws IOException {
-        Task task = super.getEpicById(id);
+    public SubTask getSubTaskById(int id) throws IOException {
+        super.getSubTaskById(id);
         save();
-        return task;
+        return super.getSubTaskById(id);
     }
     @Override
-    public Task getSubTaskById(int id) throws IOException {
-        Task task = super.getSubTaskById(id);
-        save();
-        return task;
-    }
-    @Override
-    public Task addTask(Task task) throws IOException {
-        tasks.put(task.getId(), task);
-        save();
-        return task;
-    }
-    @Override
-    public Epic addEpic(Epic epic) throws IOException {
-        epics.put(epic.getId(), epic);
-        save();
-        return epic;
-    }
-    @Override
-    public SubTask addSubTask(SubTask subTask) throws IOException {
-        subTasks.put(subTask.getId(), subTask);
-        Epic epic = epics.get(subTask.getEpicId());
-        epic.addSubTask(subTask);
-        epics.put(subTask.getEpicId(), epic);
-        save();
-        return subTask;
-    }
-    @Override
-    public void updateTask(Task task) throws IOException {
-        super.updateTask(task);
+    public void updateTask(int id, Task task) throws IOException {
+        super.updateTask(id, task);
         save();
     }
     @Override
-    public void updateEpic(Epic epic) throws IOException {
-        super.updateEpic(epic);
+    public void updateEpic(int id, Epic epic) throws IOException {
+        super.updateEpic(id, epic);
         save();
     }
+
     @Override
-    public void updateSubTask(SubTask subTask) throws IOException {
-        super.updateSubTask(subTask);
+    public void updateSubTask(int id, SubTask subTask) throws IOException {
+        super.updateSubTask(id, subTask);
         save();
     }
+
     @Override
     public void deleteTaskById(int id) throws IOException {
         super.deleteTaskById(id);
@@ -231,7 +215,15 @@ class FileBackedTasksManager extends InMemoryTaskManager {
     }
     @Override
     public void deleteSubTaskById(int id) throws IOException {
-        super.deleteSubTaskById(id);
+        SubTask subtask = subTasks.get(id);
+        if (subtask != null) {
+            Epic epic = epics.get(subtask.getEpicId());
+            epic.getSubTasksList().remove(subtask);
+            updateEpic(epic.getId(), epic);
+            subTasks.remove(id);
+        } else {
+            System.out.println("Subtask not found");
+        }
         save();
     }
     @Override

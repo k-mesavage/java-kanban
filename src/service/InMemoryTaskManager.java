@@ -6,6 +6,7 @@ import model.SubTask;
 import model.Task;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -27,10 +28,40 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public TreeSet<Task> sortByDateTime() {
+        return new TreeSet<>(Comparator.comparing(Task::getStartTime));
+    }
+
+    @Override
+    public void intersectionElimination(Task newTask) {
+        if(newTask.getStartTime() == null) {
+        return;
+    }
+        LocalDateTime endTimeOfNewTask = newTask.getStartTime().plus(newTask.getDuration());
+        for (Task task : tasks.values()) {
+            if(task.getStartTime() == null) {
+                return;
+            }
+                if (!(task instanceof Epic)) {
+                LocalDateTime endTimeOfTask = task.getStartTime().plus(task.getDuration());
+                if (newTask.getStartTime().isAfter(task.getStartTime())
+                        && newTask.getStartTime().isBefore(endTimeOfTask)) {
+                    throw new IllegalArgumentException("There are other tasks at this time!");
+                }
+                if (endTimeOfNewTask.isAfter(task.getStartTime())
+                        && endTimeOfNewTask.isBefore(endTimeOfTask)) {
+                    throw new IllegalArgumentException("There are other tasks at this time!");
+                }
+            }
+        }
+    }
+
+    @Override
     public Task addTask(Task task) throws IOException {
         int id = generateId();
         task.setId(id);
         tasks.put(task.getId(), task);
+        intersectionElimination(task);
         return task;
     }
 
@@ -50,6 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(subTask.getEpicId());
         epic.addSubTask(subTask);
         epics.put(subTask.getEpicId(), epic);
+        intersectionElimination(subTask);
         return subTask;
     }
 
@@ -64,7 +96,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getSubTask() {
+    public ArrayList<SubTask> getSubTasks() {
         return new ArrayList<>(subTasks.values());
     }
 
@@ -76,40 +108,54 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getEpicById(int id) throws IOException {
+    public Epic getEpicById(int id) throws IOException {
         historyManager.add(epics.get(id));
         return epics.get(id);
     }
 
     @Override
-    public Task getSubTaskById(int id) throws IOException {
+    public SubTask getSubTaskById(int id) throws IOException {
         historyManager.add(subTasks.get(id));
         return subTasks.get(id);
     }
 
     @Override
-    public void updateTask(Task task) throws IOException {
-        tasks.get(id).setName(task.getName());
-        tasks.get(id).setDescription(task.getDescription());
+    public void updateTask(int id, Task task) throws IOException {
+        if (tasks.get(id) == null){
+            return;
+        }
+        intersectionElimination(task);
+        task.setId(id);
+        tasks.put(id, task);
     }
 
     @Override
-    public void updateEpic(Epic epic) throws IOException {
-        epics.get(epic.getId()).setName(epic.getName());
-        epics.get(epic.getId()).setDescription(epic.getDescription());
+    public void updateEpic(int id, Epic epic) throws IOException {
+        Epic oldEpic = epics.get(id);
+        if (oldEpic == null){
+            return;
+        }
+        epic.setId(oldEpic.getId());
+        epic.setSubTasksList(oldEpic.getSubTasksList());
+        epics.put(id, epic);
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) throws IOException {
-        SubTask subtask = subTasks.get(subTask.getId());
-        subTasks.get(subtask.getId()).setName(subtask.getName());
-        subTasks.get(subtask.getId()).setDescription(subtask.getDescription());
+    public void updateSubTask(int id, SubTask subTask) throws IOException {
+        intersectionElimination(subTask);
+        SubTask oldSubTask = subTasks.get(id);
+        subTask.setId(oldSubTask.getId());
+        Epic epic = epics.get(oldSubTask.getEpicId());
+        int index = epic.getSubTasksList().indexOf(oldSubTask);
+        epic.getSubTasksList().set(index, subTask);
+        subTasks.put(id, subTask);
+        epic.setStatus();
     }
 
     @Override
     public void deleteTaskById(int id) throws IOException {
         tasks.remove(id);
-        historyManager.remove(subTasks.get(id));
+        historyManager.remove(id);
     }
 
     @Override
@@ -117,10 +163,10 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(id);
         for (SubTask subtaskId : epic.getSubTasksList()) {
             subTasks.remove(subtaskId.getId());
-            historyManager.remove(subtaskId);
+            historyManager.remove(id);
         }
         epics.remove(epic.getId());
-        historyManager.remove(subTasks.get(id));
+        historyManager.remove(id);
     }
 
     @Override
@@ -129,7 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask != null) {
             Epic epic = epics.get(subtask.getEpicId());
             epic.getSubTasksList().remove(subtask);
-            updateEpic(epic);
+            updateEpic(epic.getId(), epic);
             subTasks.remove(id);
         } else {
             System.out.println("Subtask not found");
@@ -152,7 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubTasksList().clear();
-            updateEpic(epic);
+            updateEpic(epic.getId(), epic);
         }
     }
 

@@ -5,6 +5,8 @@ import model.Task;
 import service.*;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -16,21 +18,29 @@ public class Main {
         TaskManager manager = Managers.getDefault();
         //Work strings
         String taskName = "taskName";
+        String taskName2 = "taskName2";
         String epicName = "epicName";
         String epicName2 = "epicName2";
         String subTaskName = "subTaskName";
         String description = "description";
         //Methods of adding tasks
-        Task task1 =  manager.addTask(new Task(taskName,description));
-        Task task2 = manager.addTask(new Task(taskName,description));
+        Task task1 =  manager.addTask(new Task(taskName,description, LocalDateTime.now(), Duration.ofHours(1)));
+        Task task3 = new Task("new", "new");
         Epic epic1 = manager.addEpic(new Epic(epicName,description));
         Epic epic2 = manager.addEpic(new Epic(epicName2, description));
-        SubTask subTask1 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
-        SubTask subTask2 = manager.addSubTask(new SubTask(subTaskName, description, epic1.getId()));
-        SubTask subTask3 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId())));
+        SubTask subTask1 =  manager.addSubTask((new SubTask(subTaskName, description, epic1.getId()
+                , LocalDateTime.now().plusDays(1), Duration.ofHours(1))));
         manager.changeSubTaskStatus(subTask1, Status.DONE);
         System.out.println(epic1.getStatus());
-        System.out.println(manager.printSubTasksForEpic(epic1.getId()));
+        //manager.deleteSubTaskById(subTask1.getId());
+        manager.updateSubTask(subTask1.getId(), new SubTask("new", "new", epic1.getId(),
+                subTask1.getStartTime(), subTask1.getDuration()));
+        SubTask s = manager.addSubTask(new SubTask(taskName2, description, epic1.getId(),
+                LocalDateTime.of(2022,2,2, 2,22)
+                , Duration.ofHours(1).plusMinutes(30)));
+        System.out.println(manager.getSubTaskById(s.getId()));
+        System.out.println(manager.getSubTasks());
+
 
 
         //Calling tasks to check history;

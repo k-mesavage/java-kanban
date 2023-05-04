@@ -13,10 +13,10 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
-    TaskManager taskManager;
-    Epic epic;
-    SubTask subTask;
-    SubTask subTask1;
+    private TaskManager taskManager;
+    private Epic epic;
+    private SubTask subTask;
+    private SubTask subTask1;
 
 
     @BeforeEach
