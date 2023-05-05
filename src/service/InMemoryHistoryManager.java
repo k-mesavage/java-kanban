@@ -60,7 +60,7 @@ public class InMemoryHistoryManager extends Node implements HistoryManager{
             return result;
         }
 
-        private Node getNode(int id) {
+        public Node getNode(int id) {
             return map.get(id);
         }
     }
@@ -69,6 +69,11 @@ CustomLinkedList list = new CustomLinkedList();
     @Override
     public void add(Task task) {
         list.linkLast(task);
+    }
+
+    @Override
+    public Node get(int id){
+       return list.getNode(id);
     }
 
     @Override

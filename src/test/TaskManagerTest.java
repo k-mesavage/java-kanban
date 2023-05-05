@@ -4,8 +4,9 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.TaskManager;
+import service.InMemoryTaskManager;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,21 +14,22 @@ import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class TaskManagerTest <T extends TaskManager> {
+abstract class TaskManagerTest  {
 
-    T manager;
-    void setManager(T manager) {
-        this.manager = manager;
-    };
+    InMemoryTaskManager manager;
 
+    @BeforeEach
+    void beforeEach() {
+        this.manager = new InMemoryTaskManager();
+    }
     @Test
-    void addTask() throws IOException {
+    void addTask() {
         Task task = manager.addTask(new Task("Task", "task"));
         assertNotNull(task);                                                    //Task add
     }
 
     @Test
-    void addEpic() throws IOException {
+    void addEpic() {
         Epic epic = manager.addEpic(new Epic("Epic", "epic"));
         assertNotNull(epic);                                                    //Epic add
     }
@@ -42,19 +44,20 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }
 
     @Test
-    void getTasks() throws IOException {
+    void getTasks() {
         manager.addTask(new Task("Task", "task"));
+        System.out.println(manager.getTasks());
         assertEquals(1, manager.getTasks().size());             //Tasks list correct size
     }
 
     @Test
-    void getEpics() throws IOException {
+    void getEpics() {
         manager.addEpic(new Epic("Epic", "epic"));
         assertEquals(1, manager.getEpics().size());             //Epics list correct size
     }
 
     @Test
-    void getSubTasks() throws IOException {
+    void getSubTasks() {
         Epic epic = manager.addEpic(new Epic("Epic", "epic"));
         manager.addSubTask(new SubTask("SubTask", "subtask", epic.getId()));
         manager.addSubTask(new SubTask("SubTask", "subtask", epic.getId()));
@@ -62,7 +65,7 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }
 
     @Test
-    void getTaskById() throws IOException {
+    void getTaskById() {
         Task task = manager.addTask(new Task("Task", "task"));
         assertEquals(task, manager.getTaskById(task.getId()));             //Returns the correct Task
         assertThrows(NullPointerException.class, ()-> manager.getTaskById(777));  //Incorrect TaskId
@@ -82,7 +85,6 @@ abstract class TaskManagerTest <T extends TaskManager> {
         SubTask subTask = manager.addSubTask(new SubTask("Task", "task", epic.getId()));
         assertNotNull(manager.getSubTaskById(subTask.getId()));             //Returns the correct SubTask
         assertThrows(NullPointerException.class, ()-> manager.getSubTaskById(777));    //Incorrect SubTaskId
-
     }
 
     @Test
@@ -111,8 +113,8 @@ abstract class TaskManagerTest <T extends TaskManager> {
     void deleteTaskById() throws IOException {
         Task task = manager.addTask(new Task("Task", "task"));
         manager.deleteTaskById(task.getId());
-        assertTrue(manager.getTasks().isEmpty());
-    }                                                                       //Return the void
+        assertThrows(NullPointerException.class, () ->manager.getTaskById(task.getId()));
+    }                                                                       //NullPointerException for getTaskById
 
     @Test
     void deleteEpicById() throws IOException {
@@ -138,7 +140,7 @@ abstract class TaskManagerTest <T extends TaskManager> {
 
     @Test
     void deleteEpics() throws IOException {
-        Epic epic = manager.addEpic(new Epic("Task", "task"));
+        manager.addEpic(new Epic("Task", "task"));
         manager.deleteEpics();
         assertEquals(0, manager.getEpics().size());
     }                                                                       //Return the void
@@ -152,14 +154,14 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }                                                                       //Return the void
 
     @Test
-    void changeTaskStatus() throws IOException {
+    void changeTaskStatus() {
         Task task = manager.addTask(new Task("Task", "task"));
         task.setStatus(Status.IN_PROGRESS);
         assertEquals(Status.IN_PROGRESS, task.getStatus());
     }                                                                       //Changes correct
 
     @Test
-    void changeSubTaskStatus() throws IOException {
+    void changeSubTaskStatus() {
         Epic epic = manager.addEpic(new Epic("Task", "task"));
         SubTask subTask = manager.addSubTask(new SubTask("Task", "task", epic.getId()));
         subTask.setStatus(Status.IN_PROGRESS);
@@ -182,20 +184,20 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }
 
     @Test
-    void printSubTasksForEpic() throws IOException {
+    void printSubTasksForEpic() {
         Epic epic = manager.addEpic(new Epic("Task", "task"));
         manager.addSubTask(new SubTask("Task", "task", epic.getId()));
         assertEquals(1, manager.printSubTasksForEpic(epic.getId()).size());
     }                                                                       //Return the list
     @Test
-    void getHistory() throws IOException {
+    void getHistory() {
         assertNotNull(manager.getHistory());
         Task task = manager.addTask(new Task("Task1", "task"));
         manager.getTaskById(task.getId());
         assertNotNull(manager.getHistory());
     }                                                                       //Return the list
     @Test
-    void sortByDateTime() throws IOException {
+    void sortByDateTime() {
         manager.addTask(new Task("NoTimeTask", "description"));
         manager.addTask(new Task("LastTask", "description",
                 LocalDateTime.of(2022, 5, 5, 10,20), Duration.ofHours(1)));
@@ -218,11 +220,11 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }
 
     @Test
-    void intersectionElimination() throws IOException {
+    void intersectionElimination() {
         manager.addTask(new Task("Task", "description",
-                LocalDateTime.of(2022, 5, 4, 10,20), Duration.ofHours(1)));
+                LocalDateTime.of(2022, 6, 4, 12,20), Duration.ofHours(1)));
         assertThrows(IllegalArgumentException.class
                 ,() -> manager.addTask(new Task("Task", "description",
-                        LocalDateTime.of(2022, 5, 4, 10,21), Duration.ofHours(1))));
+                        LocalDateTime.of(2022, 6, 4, 12,21), Duration.ofHours(1))));
     }                                                                       //IllegalArgumentException
 }

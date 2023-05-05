@@ -22,12 +22,11 @@ class EpicTest {
     @BeforeEach
     void beforeEach() throws IOException {
         taskManager = Managers.getDefault();
-        epic = new Epic("EpicName", "Epic description");
-        subTask = new SubTask("SubTask name", "SubTask description", epic.getId());
-        subTask1 = new SubTask("SubTask name", "SubTask description", epic.getId());
-        taskManager.addEpic(epic);
-        taskManager.addSubTask(subTask);
-        taskManager.addSubTask(subTask1);
+        epic = taskManager.addEpic(new  Epic("EpicName", "Epic description"));
+        subTask = taskManager.addSubTask(
+                new SubTask("SubTask name", "SubTask description", epic.getId()));
+        subTask1 = taskManager.addSubTask(
+                new SubTask("SubTask name", "SubTask description", epic.getId()));
 
     }
     @Test
@@ -42,20 +41,20 @@ class EpicTest {
     }
 
     @Test
-    void formationOfStatusForDoneSubtasksTest() throws IOException {
+    void formationOfStatusForDoneSubtasksTest() {
         taskManager.changeSubTaskStatus(subTask, Status.DONE);
         taskManager.changeSubTaskStatus(subTask1, Status.DONE);
         assertEquals(Status.DONE, epic.getStatus(), "Epic status != DONE!");
     }
 
     @Test
-    void formationOfStatusForNewAndDoneSubtasksTest() throws IOException {
+    void formationOfStatusForNewAndDoneSubtasksTest() {
         taskManager.changeSubTaskStatus(subTask, Status.DONE);
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status != IN_PROGRESS!");
     }
 
     @Test
-    void formationOfStatusForInProgressSubtasksTest() throws IOException {
+    void formationOfStatusForInProgressSubtasksTest() {
         taskManager.changeSubTaskStatus(subTask, Status.IN_PROGRESS);
         taskManager.changeSubTaskStatus(subTask1, Status.IN_PROGRESS);
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status != IN_PROGRESS!");

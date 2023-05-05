@@ -52,15 +52,24 @@ public class InMemoryTaskManager implements TaskManager {
                         && endTimeOfNewTask.isBefore(endTimeOfTask)) {
                     throw new IllegalArgumentException("There are other tasks at this time!");
                 }
-                if (newTask.getStartTime().equals(task.startTime) && endTimeOfNewTask.equals(endTimeOfTask)) {
-                    throw new IllegalArgumentException("There are other tasks at this time!");
-                }
+                    if (endTimeOfNewTask.isBefore(task.getStartTime())
+                            && endTimeOfNewTask.isAfter(endTimeOfTask)
+                    && newTask.getStartTime().isBefore(task.getStartTime())
+                    && newTask.getStartTime().isAfter(task.getEndTime())) {
+                        throw new IllegalArgumentException("There are other tasks at this time!");
+                    }
+                    if (endTimeOfTask.isBefore(newTask.getStartTime())
+                            && endTimeOfTask.isAfter(endTimeOfNewTask)
+                    && task.getStartTime().isBefore(newTask.getStartTime())
+                    && task.getStartTime().isAfter(newTask.getEndTime())) {
+                        throw new IllegalArgumentException("There are other tasks at this time!");
+                    }
             }
         }
     }
 
     @Override
-    public Task addTask(Task task) throws IOException {
+    public Task addTask(Task task) {
         int id = generateId();
         task.setId(id);
         tasks.put(task.getId(), task);
@@ -69,7 +78,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic addEpic(Epic epic) throws IOException {
+    public Epic addEpic(Epic epic) {
         int id = generateId();
         epic.setId(id);
         epics.put(epic.getId(), epic);
@@ -77,7 +86,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask addSubTask(SubTask subTask) throws IOException {
+    public SubTask addSubTask(SubTask subTask) {
         int id = generateId();
         subTask.setId(id);
         subTasks.put(subTask.getId(), subTask);
@@ -123,7 +132,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(int id, Task task) throws IOException {
+    public void updateTask(int id, Task task) throws IOException{
         if (tasks.get(id) == null){
             return;
         }
@@ -162,7 +171,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpicById(int id) throws IOException {
+    public void deleteEpicById(int id) throws IOException{
         Epic epic = epics.get(id);
         for (SubTask subtaskId : epic.getSubTasksList()) {
             subTasks.remove(subtaskId.getId());

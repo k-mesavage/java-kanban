@@ -3,18 +3,22 @@ package test;
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.InMemoryHistoryManager;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
-    private InMemoryHistoryManager manager = new InMemoryHistoryManager();
-    private Task task = new Task("Task", "task");
-    private Epic epic = new Epic("Epic", "epic");
-    private SubTask subTask = new SubTask("SubTask", "subTask", epic.getId());
+    private InMemoryHistoryManager manager;
+    private final Task task = new Task("Task", "task");
+    private final Epic epic = new Epic("Epic", "epic");
+    private final SubTask subTask = new SubTask("SubTask", "subTask", epic.getId());
+
+    @BeforeEach
+    void beforeEach(){
+        this.manager = new InMemoryHistoryManager();
+    }
 
     @Test
     void getEmptyHistory() {
@@ -22,35 +26,44 @@ class HistoryManagerTest {
     }                                                                       //Return the empty list
 
     @Test
-    void doubleResultInHistory() throws IOException {
+    void doubleResultInHistory() {
         manager.add(epic);
         manager.add(epic);
         assertEquals(1, manager.getHistory().size());
     }                                                                       //Correct history size after double get
 
     @Test
-    void deleteFromBeginning() throws IOException {                         //Correct delete
+    void deleteFromBeginning() {                         //Correct delete
         manager.add(task);
         manager.add(epic);
         manager.add(subTask);
         manager.remove(task.getId());
+        assertNull(manager.get(task.getId()));
+        assertNotNull(manager.get(epic.getId()));
+        assertNotNull(manager.get(subTask.getId()));
         assertEquals(2, manager.getHistory().size());
     }
 
     @Test
-    void deleteFromMiddle() throws IOException {
+    void deleteFromMiddle() {
         manager.add(task);
         manager.add(epic);
         manager.add(subTask);
         manager.remove(epic.getId());
+        assertNull(manager.get(epic.getId()));
+        assertNotNull(manager.get(task.getId()));
+        assertNotNull(manager.get(subTask.getId()));
         assertEquals(2, manager.getHistory().size());
     }
     @Test
-    void deleteFromRear() throws IOException {
+    void deleteFromRear() {
         manager.add(task);
         manager.add(epic);
         manager.add(subTask);
         manager.remove(subTask.getId());
+        assertNull(manager.get(subTask.getId()));
+        assertNotNull(manager.get(task.getId()));
+        assertNotNull(manager.get(epic.getId()));
         assertEquals(2, manager.getHistory().size());
     }
 }

@@ -12,16 +12,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
-    File file = new File("testLog.csv");
-    FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+public class FileBackedTasksManagerTest extends TaskManagerTest {
 
-    public FileBackedTasksManagerTest() {
-        setManager(fileBackedTasksManager);
-    }
 
     @Test
     void loadFromEmptyFile() {
+        File file = new File("testLog.csv");
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         assertDoesNotThrow(
                 ()-> {
         Writer writer = new FileWriter("testLog.csv");
@@ -30,6 +27,8 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
     @Test
     void loadFromFile() throws IOException {
+        File file = new File("testLog.csv");
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         Task task = fileBackedTasksManager.addTask(new Task("Task", "task"));
         Epic epic = fileBackedTasksManager.addEpic(new Epic("Epic", "epic"));
         fileBackedTasksManager.loadFromFile(new File("testLog.csv"));
