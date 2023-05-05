@@ -38,9 +38,9 @@ public class InMemoryTaskManager implements TaskManager {
         return;
     }
         LocalDateTime endTimeOfNewTask = newTask.getStartTime().plus(newTask.getDuration());
-        for (Task task : tasks.values()) {
+        for(Task task:tasks.values()) {
             if(task.getStartTime() == null) {
-                return;
+                continue;
             }
                 if (!(task instanceof Epic)) {
                 LocalDateTime endTimeOfTask = task.getStartTime().plus(task.getDuration());
@@ -50,6 +50,9 @@ public class InMemoryTaskManager implements TaskManager {
                 }
                 if (endTimeOfNewTask.isAfter(task.getStartTime())
                         && endTimeOfNewTask.isBefore(endTimeOfTask)) {
+                    throw new IllegalArgumentException("There are other tasks at this time!");
+                }
+                if (newTask.getStartTime().equals(task.startTime) && endTimeOfNewTask.equals(endTimeOfTask)) {
                     throw new IllegalArgumentException("There are other tasks at this time!");
                 }
             }
@@ -102,7 +105,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public Task getTaskById(int id) throws IOException {
+    public Task getTaskById(int id) {
         historyManager.add(tasks.get(id));
         return tasks.get(id);
     }
