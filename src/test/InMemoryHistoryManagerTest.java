@@ -9,7 +9,7 @@ import service.InMemoryHistoryManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HistoryManagerTest {
+class InMemoryHistoryManagerTest {
     private InMemoryHistoryManager manager;
     private final Task task = new Task("Task", "task");
     private final Epic epic = new Epic("Epic", "epic");
