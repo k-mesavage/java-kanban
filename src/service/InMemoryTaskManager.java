@@ -11,9 +11,9 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private Integer id = 0;
-    protected static final HashMap<Integer, Task> tasks = new HashMap<>();
-    protected static final HashMap<Integer, Epic> epics = new HashMap<>();
-    protected static final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    protected static HashMap<Integer, Task> tasks = new HashMap<>();
+    protected static HashMap<Integer, Epic> epics = new HashMap<>();
+    protected static HashMap<Integer, SubTask> subTasks = new HashMap<>();
 
     static final HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -69,7 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task addTask(Task task) {
+    public Task     addTask(Task task) {
         int id = generateId();
         task.setId(id);
         tasks.put(task.getId(), task);
@@ -131,6 +131,17 @@ public class InMemoryTaskManager implements TaskManager {
         return subTasks.get(id);
     }
 
+    public void setTaskHashMap(HashMap<Integer, Task> taskHashMap) {
+        this.tasks = taskHashMap;
+    }
+
+    public void setEpicHashMap(HashMap<Integer, Epic> epicHashMap) {
+        this.epics = epicHashMap;
+    }
+
+    public void setSubtaskHashMap(HashMap<Integer, SubTask> subtaskHashMap) {
+        this.subTasks = subtaskHashMap;
+    }
     @Override
     public void updateTask(int id, Task task) throws IOException{
         if (tasks.get(id) == null){

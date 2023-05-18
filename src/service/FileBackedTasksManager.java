@@ -1,7 +1,7 @@
 package service;
 
 import model.*;
-import service.Exceptions.ManagerSaveException;
+import service.exceptions.ManagerSaveException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +15,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public FileBackedTasksManager(File file) {
         FileBackedTasksManager.file = file;
+    }
+
+    public FileBackedTasksManager() {
     }
 
     @Override
