@@ -13,7 +13,7 @@ import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -31,8 +31,7 @@ public class HttpTaskServer {
     private final Gson gson;
 
     public HttpTaskServer() throws IOException, InterruptedException {
-        File file = new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv");
-        this.manager = (FileBackedTasksManager) Managers.getDefault();
+        this.manager = (FileBackedTasksManager) Managers.getDefault("8080", true);
         gson = Managers.getGson();
         server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/tasks/history", this::history);
@@ -183,8 +182,7 @@ public class HttpTaskServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpTaskServer server1 = new HttpTaskServer();
-        TaskManager manager = new FileBackedTasksManager(
-                new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
+        TaskManager manager = new FileBackedTasksManager();
         manager.addTask(new Task("T", "D", LocalDateTime.now(), Duration.ofHours(1)));
         manager.addTask(new Task("T", "D", LocalDateTime.now().plusDays(1), Duration.ofHours(1)));
         Epic epic = manager.addEpic(new Epic("Epic", "Description"));

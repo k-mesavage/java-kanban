@@ -6,6 +6,7 @@ import model.SubTask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.FileBackedTasksManager;
 import service.InMemoryTaskManager;
 import java.io.IOException;
 import java.time.Duration;
@@ -14,7 +15,7 @@ import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class TaskManagerTest  {
+abstract class TaskManagerTest<H extends FileBackedTasksManager> {
 
     InMemoryTaskManager manager;
 
@@ -57,7 +58,7 @@ abstract class TaskManagerTest  {
     }
 
     @Test
-    void getSubTasks() {
+    void getSubTasks() throws IOException {
         Epic epic = manager.addEpic(new Epic("Epic", "epic"));
         manager.addSubTask(new SubTask("SubTask", "subtask", epic.getId()));
         manager.addSubTask(new SubTask("SubTask", "subtask", epic.getId()));
@@ -161,7 +162,7 @@ abstract class TaskManagerTest  {
     }                                                                       //Changes correct
 
     @Test
-    void changeSubTaskStatus() {
+    void changeSubTaskStatus() throws IOException {
         Epic epic = manager.addEpic(new Epic("Task", "task"));
         SubTask subTask = manager.addSubTask(new SubTask("Task", "task", epic.getId()));
         subTask.setStatus(Status.IN_PROGRESS);
@@ -184,7 +185,7 @@ abstract class TaskManagerTest  {
     }
 
     @Test
-    void printSubTasksForEpic() {
+    void printSubTasksForEpic() throws IOException {
         Epic epic = manager.addEpic(new Epic("Task", "task"));
         manager.addSubTask(new SubTask("Task", "task", epic.getId()));
         assertEquals(1, manager.printSubTasksForEpic(epic.getId()).size());

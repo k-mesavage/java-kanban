@@ -21,7 +21,7 @@ class EpicTest {
 
     @BeforeEach
     void beforeEach() throws IOException, InterruptedException {
-        taskManager = Managers.getDefault();
+        taskManager = Managers.getDefault("8080", true);
         epic = taskManager.addEpic(new  Epic("EpicName", "Epic description"));
         subTask = taskManager.addSubTask(
                 new SubTask("SubTask name", "SubTask description", epic.getId()));

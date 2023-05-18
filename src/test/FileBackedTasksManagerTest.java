@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-public class FileBackedTasksManagerTest extends TaskManagerTest {
+public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
 
 
     @Test

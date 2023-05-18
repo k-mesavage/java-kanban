@@ -69,7 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task     addTask(Task task) {
+    public Task addTask(Task task) {
         int id = generateId();
         task.setId(id);
         tasks.put(task.getId(), task);
@@ -86,11 +86,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask addSubTask(SubTask subTask) {
+    public SubTask addSubTask(SubTask subTask) throws IOException {
         int id = generateId();
         subTask.setId(id);
         subTasks.put(subTask.getId(), subTask);
-        Epic epic = epics.get(subTask.getEpicId());
+        Epic epic = getEpicById(subTask.getEpicId());
         epic.addSubTask(subTask);
         epics.put(subTask.getEpicId(), epic);
         intersectionElimination(subTask);
