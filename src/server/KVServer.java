@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-//import static java.nio.charset.StandardCharsets.UTF_8;
-
 
 public class KVServer {
     public static final int PORT = 8078;
@@ -19,7 +17,7 @@ public class KVServer {
 
     public KVServer() throws IOException {
         apiToken = generateApiToken();
-        server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+        server = HttpServer.create(new InetSocketAddress("localhost", 8078), 0);
         server.createContext("/register", this::register);
         server.createContext("/save", this::save);
         server.createContext("/load", this::load);
@@ -28,7 +26,7 @@ public class KVServer {
     private void load(HttpExchange h) throws IOException {
         try (h) {
             System.out.println("\n/load");
-            if (!hasAuth(h)) {
+            if (hasAuth(h)) {
                 System.out.println("Запрос не авторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
                 return;
@@ -55,7 +53,7 @@ public class KVServer {
     private void save(HttpExchange httpExchange) throws IOException {
         try (httpExchange) {
             System.out.println("\n/save");
-            if (!hasAuth(httpExchange)) {
+            if (hasAuth(httpExchange)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 httpExchange.sendResponseHeaders(403, 0);
                 return;
@@ -113,7 +111,7 @@ public class KVServer {
 
     protected boolean hasAuth(HttpExchange httpExchange) {
         String rawQuery = httpExchange.getRequestURI().getRawQuery();
-        return rawQuery != null && (rawQuery.contains("API_TOKEN=" + apiToken) || rawQuery.contains("API_TOKEN=DEBUG"));
+        return rawQuery == null || (!rawQuery.contains("API_TOKEN=" + apiToken) && !rawQuery.contains("API_TOKEN=DEBUG"));
     }
 
     protected String readText(HttpExchange httpExchange) throws IOException {

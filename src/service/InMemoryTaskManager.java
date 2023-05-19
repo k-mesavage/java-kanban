@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Integer id = 0;
+    private Integer id = 1;
     protected static HashMap<Integer, Task> tasks = new HashMap<>();
     protected static HashMap<Integer, Epic> epics = new HashMap<>();
     protected static HashMap<Integer, SubTask> subTasks = new HashMap<>();

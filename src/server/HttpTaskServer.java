@@ -9,7 +9,6 @@ import com.sun.net.httpserver.HttpServer;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
 
@@ -25,20 +24,29 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
 
-    public static final int PORT = 8080;
-    private final FileBackedTasksManager manager;
+    public static final int PORT = 8078;
     private final HttpServer server;
-    private final Gson gson;
+    private final TaskManager manager = Managers.getDefault();
+    private final Gson gson = Managers.getGson();
+    
 
     public HttpTaskServer() throws IOException, InterruptedException {
-        this.manager = (FileBackedTasksManager) Managers.getDefault("8080", true);
-        gson = Managers.getGson();
-        server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+        this.server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/tasks/history", this::history);
         server.createContext("/tasks/", this::tasks);
         server.createContext("/tasks/task", this::task);
         server.createContext("/tasks/epic", this::epic);
         server.createContext("/tasks/subtask", this::subTask);
+    }
+
+    public void start() {
+        System.out.println("Запускаем сервер на порту " + PORT);
+        server.start();
+    }
+
+    public void stop() {
+        server.stop(0);
+        System.out.println("Остановили сервер на порту " + PORT);
     }
 
     private void history(HttpExchange httpExchange) {
@@ -181,8 +189,9 @@ public class HttpTaskServer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        KVServer server2 = new KVServer();
         HttpTaskServer server1 = new HttpTaskServer();
-        TaskManager manager = new FileBackedTasksManager();
+        TaskManager manager = server1.manager;
         manager.addTask(new Task("T", "D", LocalDateTime.now(), Duration.ofHours(1)));
         manager.addTask(new Task("T", "D", LocalDateTime.now().plusDays(1), Duration.ofHours(1)));
         Epic epic = manager.addEpic(new Epic("Epic", "Description"));
@@ -209,20 +218,14 @@ public class HttpTaskServer {
         return -1;
     }
 
-    public void start() {
-        System.out.println("Запускаем сервер на порту " + PORT);
-        server.start();
-    }
-
-    public void stop() {
-        server.stop(0);
-        System.out.println("Остановили сервер на порту " + PORT);
-    }
-
     protected void sendText(HttpExchange server, String text) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
         server.getResponseHeaders().add("Content-Type", "application/json");
         server.sendResponseHeaders(200, resp.length);
         server.getResponseBody().write(resp);
+    }
+
+    public TaskManager getManager() {
+        return manager;
     }
 }

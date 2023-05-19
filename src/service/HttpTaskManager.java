@@ -3,12 +3,11 @@ package service;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import server.KVTaskClient;
-import service.adapter.LocalDateTimeAdapter;
 import model.Epic;
 import model.SubTask;
 import model.Task;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,34 +15,31 @@ import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTasksManager {
     private final KVTaskClient client;
-    private final Gson gson = new GsonBuilder().
-            registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    private final Gson gson = Managers.getGson();
 
-    public HttpTaskManager(String port, boolean isLoad) {
-        super();
+    public HttpTaskManager(String port, boolean isLoad) throws IOException {
         client = new KVTaskClient(port);
         if (isLoad) {
             load();
         }
     }
 
-    public HttpTaskManager(String port) {
+    public HttpTaskManager(String port) throws IOException {
         this(port, false);
     }
 
     @Override
     void save() {
-        client.put("tasks", gson.toJson(tasks));
-        client.put("epics", gson.toJson(epics));
-        client.put("subtasks", gson.toJson(subTasks));
+        client.put("tasks", gson.toJson(getTasks()));
+        client.put("epics", gson.toJson(getEpics()));
+        client.put("subtasks", gson.toJson(getSubTasks()));
         client.put("history", gson.toJson(historyManager.getHistory()
                 .stream()
                 .map(Task::getId)
                 .collect(Collectors.toList())));
     }
 
-    private void load() {
+    private void load() throws IOException {
         String jsonTask = client.load("tasks");
         if (!jsonTask.isEmpty()) {
             tasks = gson.fromJson(jsonTask,
@@ -73,15 +69,15 @@ public class HttpTaskManager extends FileBackedTasksManager {
             for (Integer id : history) {
                 if (epics.containsKey(id)) {
                     Epic epic = epics.get(id);
-                    historyManager.add(epic);
+                    getEpicById(epic.getId());
                 }
                 if (tasks.containsKey(id)) {
                     Task task1 = tasks.get(id);
-                    historyManager.add(task1);
+                    getTaskById(task1.getId());
                 }
                 if (subTasks.containsKey(id)) {
                     SubTask subtask = subTasks.get(id);
-                    historyManager.add(subtask);
+                    getSubTaskById(subtask.getId());
                 }
             }
         }

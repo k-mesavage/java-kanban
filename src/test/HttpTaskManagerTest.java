@@ -27,7 +27,7 @@ class HttpTaskManagerTest<T extends TaskManagerTest<HttpTaskManager>> {
         try {
             this.server = new KVServer();
             this.server.start();
-            this.manager = Managers.getDefault("8078", true);
+            this.manager = Managers.getDefault();
         } catch (IOException | InterruptedException e) {
             System.out.println("Ошибка при создании менеджера");
         }
@@ -65,12 +65,10 @@ class HttpTaskManagerTest<T extends TaskManagerTest<HttpTaskManager>> {
     @Test
     public void shouldLoadSubtasks() throws IOException {
         Epic epic1 = new Epic("Epic", "D");
-        SubTask subtask1 = new SubTask("SubTask", "D", epic1.getId()
-                , LocalDateTime.now().plusDays(2), Duration.ofHours(1));
-        SubTask subtask2 = new SubTask("SubTask", "D", epic1.getId(),
-                LocalDateTime.now().plusDays(3), Duration.ofHours(1));
-        manager.addSubTask(subtask1);
-        manager.addSubTask(subtask2);
+        SubTask subtask1 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId()
+                , LocalDateTime.now().plusDays(2), Duration.ofHours(1)));
+        SubTask subtask2 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId(),
+                LocalDateTime.now().plusDays(3), Duration.ofHours(1)));
         manager.getSubTaskById(subtask1.getId());
         manager.getSubTaskById(subtask2.getId());
         List<Task> list = manager.getHistory();

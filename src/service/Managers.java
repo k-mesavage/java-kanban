@@ -11,8 +11,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public interface Managers {
-    static TaskManager getDefault(String port, boolean isLoad) throws IOException, InterruptedException {
-        return new HttpTaskManager(port, isLoad);
+    static HttpTaskManager getDefault() throws IOException, InterruptedException {
+        return new HttpTaskManager("8078", true);
     }
 
     static HistoryManager getDefaultHistory(){

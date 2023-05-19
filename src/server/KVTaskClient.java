@@ -8,9 +8,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 public class KVTaskClient {
-    private String apiToken = null;
+    private String apiToken;
     private final String port;
     private final HttpClient client = HttpClient.newHttpClient();
     private static final String SERVER_NAME = "http://localhost:";
@@ -18,10 +19,10 @@ public class KVTaskClient {
     public KVTaskClient(String port) {
         this.port = port;
         URI uri = URI.create(SERVER_NAME + port + "/register");
-        HttpRequest request = HttpRequest.newBuilder().
-                uri(uri).
-                GET().
-                build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
@@ -61,13 +62,14 @@ public class KVTaskClient {
                 uri(uri).
                 GET().
                 build();
-        HttpResponse<String> response;
+        HttpClient client = HttpClient.newHttpClient();
         try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client
+                    .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            return response.body();
         } catch (IOException | InterruptedException e) {
             throw new ResponseException("Во время выполнения запроса ресурса по url-адресу: '" + uri + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-        return response.body();
     }
 }
