@@ -2,12 +2,14 @@ package service;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.sun.net.httpserver.HttpServer;
 import server.KVTaskClient;
 import model.Epic;
 import model.SubTask;
 import model.Task;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,6 +20,8 @@ public class HttpTaskManager extends FileBackedTasksManager {
     private final Gson gson = Managers.getGson();
 
     public HttpTaskManager(String port, boolean isLoad) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8078), 0);
+        server.start();
         client = new KVTaskClient(port);
         if (isLoad) {
             load();

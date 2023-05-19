@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpServer;
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
 
@@ -23,15 +24,14 @@ import java.time.LocalDateTime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
-
-    public static final int PORT = 8078;
     private final HttpServer server;
-    private final TaskManager manager = Managers.getDefault();
+    private final TaskManager manager;
     private final Gson gson = Managers.getGson();
-    
+
 
     public HttpTaskServer() throws IOException, InterruptedException {
-        this.server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+        this.server = HttpServer.create(new InetSocketAddress(8078), 0);
+        manager = new FileBackedTasksManager();
         server.createContext("/tasks/history", this::history);
         server.createContext("/tasks/", this::tasks);
         server.createContext("/tasks/task", this::task);
@@ -40,13 +40,13 @@ public class HttpTaskServer {
     }
 
     public void start() {
-        System.out.println("Запускаем сервер на порту " + PORT);
+        System.out.println("Запускаем сервер на порту " + 8078);
         server.start();
     }
 
     public void stop() {
         server.stop(0);
-        System.out.println("Остановили сервер на порту " + PORT);
+        System.out.println("Остановили сервер на порту " + 8078);
     }
 
     private void history(HttpExchange httpExchange) {

@@ -1,7 +1,8 @@
 ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC
-1,TASK,TaskOne,NEW,TaskDescription,null
-2,EPIC,EpicOne,NEW,EpicDescription,null
-3,SUBTASK,SubTaskOne,NEW,SubTaskDesc,2
-4,SUBTASK,SubTaskTwo,NEW,SubTaskDesc,2
+2,TASK,Task,NEW,D,null
+3,TASK,Task,NEW,D,null
+4,EPIC,Epic,NEW,D,null
+5,SUBTASK,Subtask,NEW,D,4
+6,SUBTASK,Subtask,NEW,D,4
 
-1,3,2
+2,3,5,4,6

@@ -11,7 +11,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class KVTaskClient {
-    private String apiToken;
+    private final String apiToken;
     private final String port;
     private final HttpClient client = HttpClient.newHttpClient();
     private static final String SERVER_NAME = "http://localhost:";
@@ -45,7 +45,7 @@ public class KVTaskClient {
                 POST(body).
                 build();
         try {
-            HttpResponse response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
             if (response.statusCode() != 200) {
                 throw new StatusCodeException("Статус ответа не 200");
             }

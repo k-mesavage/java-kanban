@@ -1,9 +1,7 @@
 package test;
 
-
 import com.google.gson.Gson;
 
-import model.Status;
 import org.junit.jupiter.api.*;
 import server.HttpTaskServer;
 import server.KVServer;

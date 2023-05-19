@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    protected static File file;
+    protected static File file = new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv");
     protected static final String HEAD = ("ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC");
 
     public FileBackedTasksManager(File file) {
@@ -109,7 +109,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
             }
             writer.write(System.lineSeparator());
-            writer.write(historyToString(historyManager));}
+            writer.write(historyToString());}
 
         }
     private static Task fromString(String value) {
@@ -138,8 +138,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    static String historyToString(HistoryManager manager) {
-        List<Task> history = manager.getHistory();
+    static String historyToString() {
+        List<Task> history = InMemoryTaskManager.historyManager.getHistory();
         List<String> idTasks = new ArrayList<>();
         for (Task task : history) {
             idTasks.add(String.valueOf(task.getId()));
