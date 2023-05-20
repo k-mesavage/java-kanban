@@ -30,6 +30,12 @@ public class InMemoryHistoryManager extends Node implements HistoryManager{
             }
         }
 
+        private void removeAll() {
+            map.clear();
+            head = null;
+            tail = null;
+        }
+
         private void linkLast(Task task) {
             Node node = new Node();
             node.setData(task);
@@ -84,7 +90,11 @@ CustomLinkedList list = new CustomLinkedList();
     @Override
     public List<Task> getHistory() {
         return list.getTasks();
+    }
 
+    @Override
+    public void cleanHistory() {
+        list.removeAll();
     }
 }
 

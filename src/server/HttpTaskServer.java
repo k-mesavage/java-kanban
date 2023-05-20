@@ -9,29 +9,28 @@ import com.sun.net.httpserver.HttpServer;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
-
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.time.Duration;
-import java.time.LocalDateTime;
-
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+//Извиняюсь за повторную отправку, не смог задать вопрос в пачке
+// , спасибо за более подробное разъяснение по инициализации
+
+
 public class HttpTaskServer {
     private final HttpServer server;
-    private final TaskManager manager;
+    private final TaskManager manager = Managers.getDefault();
     private final Gson gson = Managers.getGson();
-
+    private final int port = 8080;
 
     public HttpTaskServer() throws IOException, InterruptedException {
-        this.server = HttpServer.create(new InetSocketAddress(8078), 0);
-        manager = new FileBackedTasksManager();
+        this.server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
         server.createContext("/tasks/history", this::history);
         server.createContext("/tasks/", this::tasks);
         server.createContext("/tasks/task", this::task);
@@ -40,13 +39,15 @@ public class HttpTaskServer {
     }
 
     public void start() {
-        System.out.println("Запускаем сервер на порту " + 8078);
         server.start();
     }
 
     public void stop() {
         server.stop(0);
-        System.out.println("Остановили сервер на порту " + 8078);
+    }
+
+    public TaskManager getManager() {
+        return manager;
     }
 
     private void history(HttpExchange httpExchange) {
@@ -73,23 +74,21 @@ public class HttpTaskServer {
         String requestMethod = httpExchange.getRequestMethod();
         JsonArray taskList = new JsonArray();
         JsonObject tasks = new JsonObject();
-        try (httpExchange) {
-            if (requestMethod.equals("GET")) {
-                tasks.add("tasks", taskList);
-                for (Task task : manager.getTasks()) {
-                    taskList.add(String.valueOf(task));
-                }
-                for (Epic epic : manager.getEpics()) {
-                    taskList.add(String.valueOf(epic));
-                }
-                for (SubTask subTask : manager.getSubTasks()) {
-                    taskList.add(String.valueOf(subTask));
-                }
-                sendText(httpExchange, tasks.toString());
-                httpExchange.sendResponseHeaders(200, 0);
-            } else {
-                httpExchange.sendResponseHeaders(405, 0);
+        if (requestMethod.equals("GET")) {
+            tasks.add("tasks", taskList);
+            for (Task task : manager.getTasks()) {
+                taskList.add(String.valueOf(task));
             }
+            for (Epic epic : manager.getEpics()) {
+                taskList.add(String.valueOf(epic));
+            }
+            for (SubTask subTask : manager.getSubTasks()) {
+                taskList.add(String.valueOf(subTask));
+            }
+            sendText(httpExchange, tasks.toString());
+            httpExchange.sendResponseHeaders(200, 0);
+        } else {
+            httpExchange.sendResponseHeaders(405, 0);
         }
     }
 
@@ -99,7 +98,7 @@ public class HttpTaskServer {
         try (httpExchange) {
             switch (requestMethod) {
                 case "GET" -> {
-                    if (id != -1) {
+                    if (id != null) {
                         Task task = manager.getTaskById(id);
                         String response = gson.toJson(task);
                         sendText(httpExchange, response);
@@ -109,12 +108,19 @@ public class HttpTaskServer {
                     }
                 }
                 case "POST" -> {
-                    Task task = gson.fromJson(JsonParser.parseString(read(httpExchange)), Task.class);
+                    String json = read(httpExchange);
+                    if (json.isEmpty()) {
+                        System.out.println("Пустая задача");
+                        httpExchange.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    Task task = gson.fromJson(JsonParser.parseString(json), Task.class);
                     manager.addTask(task);
                     httpExchange.sendResponseHeaders(200, 0);
                 }
+
                 case "DELETE" -> {
-                    if (id != -1) {
+                    if (id != null) {
                         manager.deleteTaskById(id);
                         httpExchange.sendResponseHeaders(200, 0);
                         System.out.println("Задача " + id + " удалена");
@@ -135,12 +141,21 @@ public class HttpTaskServer {
         try (httpExchange) {
             switch (requestMethod) {
                 case "GET":
-                    if (id != -1) {
+                    if (id != null) {
                         sendText(httpExchange, gson.toJson(manager.getEpicById(id)));
+                    } else {
+                        httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+                        httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, gson.toJson(manager.getEpics()));
                     }
                 case "POST":
-                    String body = read(httpExchange);
-                    Epic epic = gson.fromJson(JsonParser.parseString(body), Epic.class);
+                    String json = read(httpExchange);
+                    if (json.isEmpty()) {
+                        System.out.println("Пустая задача");
+                        httpExchange.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    Epic epic = gson.fromJson(JsonParser.parseString(json), Epic.class);
                     manager.addEpic(epic);
                     for (SubTask subTask : epic.getSubTasksList()) {
                         manager.addSubTask(subTask);
@@ -161,25 +176,46 @@ public class HttpTaskServer {
     }
 
     public void subTask(HttpExchange httpExchange) throws IOException {
-        Integer id = parsePathId(httpExchange.getRequestURI());
         String requestMethod = httpExchange.getRequestMethod();
+        Integer id = parsePathId(httpExchange.getRequestURI());
         try (httpExchange) {
             switch (requestMethod) {
                 case "GET" -> {
-                    if (id != -1) {
-                        sendText(httpExchange, gson.toJson(manager.getSubTaskById(id)));
+                    if (id != null) {
+                        if (manager.getSubTasks().stream()
+                                .anyMatch(s -> Objects.equals(s.getId(), id))) {
+                            String body = gson.toJson(manager.getSubTaskById(id));
+                            httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+                            httpExchange.sendResponseHeaders(200, 0);
+                            sendText(httpExchange, body);
+                        }
                     } else {
-                        httpExchange.sendResponseHeaders(404, 0);
+                        httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+                        httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, gson.toJson(manager.getSubTasks()));
                     }
                 }
                 case "POST" -> {
-                    SubTask subTask = gson.fromJson(JsonParser.parseString(read(httpExchange)), SubTask.class);
-                    manager.addSubTask(subTask);
+                    String json = read(httpExchange);
+                    if (json.isEmpty()) {
+                        System.out.println("Пустая задача");
+                        httpExchange.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    SubTask subTask = gson.fromJson(json, SubTask.class);
+                    if (subTask.getId() == null || subTask.getId() == 0) {
+                        manager.addSubTask(subTask);
+                    } else {
+                        manager.updateSubTask(subTask.getId(), subTask);
+                    }
                     httpExchange.sendResponseHeaders(200, 0);
                 }
                 case "DELETE" -> {
-                    if (id != -1) {
+                    if (id != null) {
                         manager.deleteSubTaskById(id);
+                    }
+                    else {
+                        manager.deleteSubTasks();
                     }
                     httpExchange.sendResponseHeaders(200, 0);
                 }
@@ -188,22 +224,10 @@ public class HttpTaskServer {
         }
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        KVServer server2 = new KVServer();
-        HttpTaskServer server1 = new HttpTaskServer();
-        TaskManager manager = server1.manager;
-        manager.addTask(new Task("T", "D", LocalDateTime.now(), Duration.ofHours(1)));
-        manager.addTask(new Task("T", "D", LocalDateTime.now().plusDays(1), Duration.ofHours(1)));
-        Epic epic = manager.addEpic(new Epic("Epic", "Description"));
-        manager.addSubTask(new SubTask(
-                "S", "d", epic.getId(), LocalDateTime.now().plusHours(5), Duration.ofHours(1)));
-
-        server1.start();
-    }
-
     private String read (HttpExchange httpExchange) throws IOException {
         return new String(httpExchange.getRequestBody().readAllBytes(), UTF_8);
     }
+
     private Integer parsePathId (URI uri){
         if (uri.getQuery() != null) {
             String[] split = uri.getQuery().split("&");
@@ -215,7 +239,7 @@ public class HttpTaskServer {
                 }
             }
         }
-        return -1;
+        return null;
     }
 
     protected void sendText(HttpExchange server, String text) throws IOException {
@@ -223,9 +247,5 @@ public class HttpTaskServer {
         server.getResponseHeaders().add("Content-Type", "application/json");
         server.sendResponseHeaders(200, resp.length);
         server.getResponseBody().write(resp);
-    }
-
-    public TaskManager getManager() {
-        return manager;
     }
 }

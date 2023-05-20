@@ -8,7 +8,10 @@ import service.Managers;
 import service.TaskManager;
 import model.Status;
 
+import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,15 +21,14 @@ class EpicTest {
     private SubTask subTask;
     private SubTask subTask1;
 
-
     @BeforeEach
-    void beforeEach() throws IOException, InterruptedException {
-        taskManager = Managers.getDefault();
+    void beforeEach() throws IOException {
+        taskManager = Managers.getFileBackedTasksManager(new File("testLog.csv"));
         epic = taskManager.addEpic(new  Epic("EpicName", "Epic description"));
         subTask = taskManager.addSubTask(
-                new SubTask("SubTask name", "SubTask description", epic.getId()));
+                new SubTask("SubTask name", "SubTask description", epic.getId(), LocalDateTime.now(), Duration.ofHours(1)));
         subTask1 = taskManager.addSubTask(
-                new SubTask("SubTask name", "SubTask description", epic.getId()));
+                new SubTask("SubTask name", "SubTask description", epic.getId(), LocalDateTime.now().plusDays(1), Duration.ofHours(1)));
 
     }
     @Test

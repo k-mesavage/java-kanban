@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import model.Epic;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.FileBackedTasksManager;
 
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
-
 
     @Test
     void loadFromEmptyFile() {

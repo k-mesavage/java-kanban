@@ -55,6 +55,7 @@ public interface TaskManager {
     List<SubTask> printSubTasksForEpic(int epicId);
 
     List<Task> getHistory();
+    void cleanHistory();
 
     TreeSet<Task> sortByDateTime();
 

@@ -17,19 +17,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class HttpTaskManagerTest<T extends TaskManagerTest<HttpTaskManager>> {
     private KVServer server;
     private TaskManager manager;
+    private HttpTaskManager httpTaskManager;
 
     @BeforeEach
-    public void createManager() {
+    public void start() {
         try {
             this.server = new KVServer();
             this.server.start();
             this.manager = Managers.getDefault();
+            manager.deleteSubTasks();
+            manager.deleteTasks();
+            manager.deleteEpics();
         } catch (IOException | InterruptedException e) {
-            System.out.println("Ошибка при создании менеджера");
+            e.printStackTrace();
         }
     }
 
@@ -39,40 +44,50 @@ class HttpTaskManagerTest<T extends TaskManagerTest<HttpTaskManager>> {
     }
 
     @Test
-    public void shouldLoadTasks() throws IOException {
-        Task task1 = new Task("Task", "D", LocalDateTime.now(), Duration.ofHours(1));
-        Task task2 = new Task("Task", "D", LocalDateTime.now().plusDays(1), Duration.ofHours(1));
-        manager.addTask(task1);
-        manager.addTask(task2);
-        manager.getTaskById(task1.getId());
-        manager.getTaskById(task2.getId());
-        List<Task> list = manager.getHistory();
-        assertEquals(manager.getTasks(), list);
+    public void shouldLoadTasks() {
+        try {
+            Task task1 = manager
+                    .addTask(new Task("Task", "D", LocalDateTime.now(), Duration.ofHours(1)));
+            Task task2 = manager
+                    .addTask(new Task("Task", "D", LocalDateTime.now().plusDays(1), Duration.ofHours(1)));
+            manager.getTaskById(task1.getId());
+            manager.getTaskById(task2.getId());
+            httpTaskManager = new HttpTaskManager("8078", true);
+            List<Task> list = httpTaskManager.getHistory();
+            assertEquals(manager.getTasks(), list);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void shouldLoadEpics() throws IOException {
-        Epic epic1 = new Epic("Epic", "D");
-        Epic epic2 = new Epic("Epic", "D");
-        manager.addEpic(epic1);
-        manager.addEpic(epic2);
-        manager.getEpicById(epic1.getId());
-        manager.getEpicById(epic2.getId());
-        List<Task> list = manager.getHistory();
-        assertEquals(manager.getEpics(), list);
+    public void shouldLoadEpics() {
+        try {
+            Epic epic1 = manager.addEpic(new Epic("Epic1", "D"));
+            Epic epic2 = manager.addEpic(new Epic("Epic2", "D"));
+            manager.getEpicById(epic1.getId());
+            manager.getEpicById(epic2.getId());
+            List<Task> list = manager.getHistory();
+            assertEquals(manager.getEpics(), list);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void shouldLoadSubtasks() throws IOException {
-        Epic epic1 = new Epic("Epic", "D");
-        SubTask subtask1 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId()
-                , LocalDateTime.now().plusDays(2), Duration.ofHours(1)));
-        SubTask subtask2 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId(),
-                LocalDateTime.now().plusDays(3), Duration.ofHours(1)));
-        manager.getSubTaskById(subtask1.getId());
-        manager.getSubTaskById(subtask2.getId());
-        List<Task> list = manager.getHistory();
-        assertEquals(manager.getSubTasks(), list);
+    public void shouldLoadSubtasks() {
+        try {
+            Epic epic1 = manager.addEpic(new Epic("Epic3", "D"));
+            SubTask subtask1 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId()
+                    , LocalDateTime.now().plusDays(2), Duration.ofHours(1)));
+            SubTask subtask2 = manager.addSubTask(new SubTask("SubTask", "D", epic1.getId(),
+                    LocalDateTime.now().plusDays(3), Duration.ofHours(1)));
+            manager.getSubTaskById(subtask1.getId());
+            manager.getSubTaskById(subtask2.getId());
+            assertEquals(3, manager.getHistory().size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

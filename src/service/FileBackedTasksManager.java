@@ -10,24 +10,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    protected static File file = new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv");
+    protected File file;
     protected static final String HEAD = ("ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC");
 
     public FileBackedTasksManager(File file) {
-        FileBackedTasksManager.file = file;
+        this.file = file;
     }
 
+    public FileBackedTasksManager(String port) {
+        this.file =new File(port);
+    }
     public FileBackedTasksManager() {
     }
 
-    @Override
+
+        @Override
     public void changeTaskStatus(Task task, Status status) {
         task.setStatus(status);
     }
 
     public static void main(String[] args) throws IOException {
         FileBackedTasksManager xo = new FileBackedTasksManager          /*ADD USERNAME*/
-                (new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
+                (new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
 
 //Set up different tasks, epics, and subtasks.
         Task task = xo.addTask(new Task("TaskOne", "TaskDescription"));
@@ -43,9 +47,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         xo.getSubTaskById(subTask1.getId());
 
 //Create a new FileBackedTasksManager manager from the same file.
-        FileBackedTasksManager test = new FileBackedTasksManager
-                (new File("/Users/mesavage/Documents/dev/java-kanban/src/service/resources/log.csv"));
-        test.loadFromFile(file);
+        FileBackedTasksManager test = new FileBackedTasksManager(
+                new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
+        test.loadFromFile(new File("/Users/USERNAME/Documents/dev/java-kanban/src/service/resources/log.csv"));
 
 //FileBackedTasksManager recovered correctly?
         System.out.println(test.getHistory());

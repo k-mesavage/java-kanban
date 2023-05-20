@@ -11,7 +11,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class KVTaskClient {
-    private final String apiToken;
+    private String apiToken;
     private final String port;
     private final HttpClient client = HttpClient.newHttpClient();
     private static final String SERVER_NAME = "http://localhost:";
@@ -28,11 +28,10 @@ public class KVTaskClient {
             if (response.statusCode() != 200) {
                 throw new StatusCodeException("Статус ответа не 200");
             } else {
-                apiToken = response.body();
+                this.apiToken = response.body();
             }
         } catch (IOException | InterruptedException e) {
-            throw new ResponseException("Во время выполнения запроса ресурса по url-адресу: '" + uri + "' возникла ошибка.\n" +
-                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+            e.printStackTrace();
         }
     }
 

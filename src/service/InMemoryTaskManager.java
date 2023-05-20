@@ -22,6 +22,10 @@ public class InMemoryTaskManager implements TaskManager {
         return new LinkedList<>(historyManager.getHistory());
     }
 
+    public void cleanHistory() {
+        historyManager.cleanHistory();
+    }
+
     private int generateId() {                 //The method in turn generates a number to assign the task as ID
         ++id;
         return id;
